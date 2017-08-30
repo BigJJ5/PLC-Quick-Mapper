@@ -4,13 +4,14 @@ writeBeginning = [[''],
                   [''],
                   ['Name','Value','Extent','Manipulation','TreatAs','Access','ScaleTo', 'Sim', 'OnWrite', 'HasSP', 'Label', 'Desc', 'Class', 'FormType', 'LimitMin', 'LimitMax', 'LimitType', 'ColType', 'Event1 / Mode', 'Event2 / Mode', 'Trigger1 / Mode', 'Trigger2 / Mode', 'QuickPlot / Mode', 'Sec / Access', 'Sec / Logging']]
 class ABRedLionTags:
-    def convert(self, blocksize):
+    somethingFound = False  
+    def convert(self, blocksize, PLCName):
         lines = list(csv.reader(open('ABTags.csv', 'r')))       
         with open("abredlionconversionINPUT.csv", "w")  as my_csv:                                                 #open export
             csvWriter= csv.writer(my_csv, delimiter=',', lineterminator = '\n') 
             csvWriter.writerows(writeBeginning)                                               #create new tag file for RedLion                                         #define number of tags to do before stopping
         #name = input("Enter the controller tag name to import (e.g, RedlionDSP)(CAPS MATTER):")            #tag could vary, but is typically RedLionDSP 
-        linesCounted = 0                                                                                    #Initializing variables
+        linesCounted = 0                                                                                  #Initializing variables
         wordNumber = 0
         print blocksize
         while (wordNumber < blocksize):
@@ -21,6 +22,7 @@ class ABRedLionTags:
                             description = raw_input("Multiple bits in word detected, manual name required (e.g, CommandsFromSpinnbau): ")
                             wordNumber+=1
                             wordFound = True
+                            somethingFound = True
                             linesCounted = 0
                             break
                         else:
@@ -31,6 +33,7 @@ class ABRedLionTags:
                                 csvWriter.writerow(newTag)
                             wordNumber+=1
                             wordFound = True
+                            somethingFound = True
                             linesCounted = 0
                             break 
                 linesCounted+=1   
@@ -52,6 +55,7 @@ class ABRedLionTags:
                             description = raw_input("Multiple bits in word detected, manual name required (e.g, CommandsFromSpinnbau): ")
                             wordNumber+=1
                             wordFound = True
+                            somethingFound = True
                             linesCounted = 0
                             break
                         else:
@@ -62,6 +66,7 @@ class ABRedLionTags:
                                 csvWriter.writerow(newTag)
                             wordNumber+=1
                             wordFound = True
+                            somethingFound = True
                             linesCounted = 0
                             break 
                 linesCounted+=1   
@@ -71,3 +76,4 @@ class ABRedLionTags:
                 linesCounted = 0
             else:
                 wordFound = False
+        return somethingFound
