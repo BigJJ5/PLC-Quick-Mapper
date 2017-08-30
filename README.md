@@ -10,7 +10,7 @@ Initial Upload_________________________&&&& - 8/28/2017 <br />
 GUI and efficiency work________________&&&& - 8/30/2017 <br />
 ### V0.7<br />
 RSLogix 5000 - Crimson 3.0 Tags_______@@@@ - 8/31/2017 <br />
-GUI Interface and Guide________________@@@@ - 8/31/2017 <br />
+GUI Interface and Guide________________@@@@ - 9/1/2017 <br />
 ### V0.8<br />
 Siemens Step 7 - Crimson 3.0 Tags______**** - TBD <br />
 ### V0.9<br /> 
