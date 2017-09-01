@@ -29,7 +29,7 @@ class GUI(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, PageOne, PageTwo):
+        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour):
 
             frame = F(container, self)
 
@@ -45,6 +45,8 @@ class GUI(tk.Tk):
         frame.tkraise()
     def new_window(self):
         self.newWindow = guideGUI()
+    def closeWindow(self):
+        self.destroy()
         
 class guideGUI(tk.Toplevel):
 
@@ -75,7 +77,8 @@ class guideGUI(tk.Toplevel):
 
         frame = self.frames[cont]
         frame.tkraise()
-
+    def closeWindow(self):
+        self.destroy()    
         
 class StartPage(tk.Frame):
 
@@ -103,7 +106,8 @@ class StartPage(tk.Frame):
                 print "Correct Case"
                 global case
                 case = 1;
-                newWindow = guideGUI()
+                global guideWindow
+                guideWindow = guideGUI()
                 app.show_frame(PageOne)
             else:
                 print self.var1.get() + " ---> " + self.var2.get()
@@ -120,14 +124,19 @@ class PageOne(tk.Frame):
     def __init__(self, parent, controller):
         self.PLCentryText = StringVar()
         self.PLCentryText.set("PLC Name in Crimson (e.g PLC1)")
+        #self.PLCentryText.set("PLC1")
         self.numberentryText = StringVar()
         self.numberentryText.set("Number of Tags (e.g 200)")
+        #self.numberentryText.set("200")
         self.fileentryText = StringVar()
+        #self.fileentryText.set("ABTags.csv")
         self.fileentryText.set("Browse for .CSV file or type filepath here...")
         self.tagNameentryText = StringVar()
         self.tagNameentryText.set("Name of Redlion module (e.g RedlionDSP)")
+        #self.tagNameentryText.set("RedLionDSP")
         tk.Frame.__init__(self, parent)
         labelStep5 = tk.Label(self, text="Quick Mapper needs the following information.\n Use the guide to enter them correctly.").pack(pady=10,padx=10)
+        labelFile = tk.Label(self, text="Exported Studio 5000 Tags:").pack(pady=10,padx=10)
         fileEntry = Entry(self, textvariable=self.fileentryText, width=70).pack()
         browsebutton = Button(self, text="Browse", command=self.browsefunc).pack()
         PLCEntry = Entry(self, textvariable=self.PLCentryText, width=50).pack()
@@ -146,26 +155,58 @@ class PageOne(tk.Frame):
         global TagName
         global TagSize
         global filename
+        valid = False
         PLCName = self.PLCentryText.get()
         TagName = self.tagNameentryText.get()
         TagSize = self.numberentryText.get()
         filename = self.fileentryText.get()
         try:
             size = int(TagSize)
-            if ABRedLionTags().convert(size, PLCName) == False:
-                tkMessageBox.showinfo("Invalid inputs", "Did not find any tags with that name")
-            else:  
-                tkMessageBox.showinfo("Validated!", "Success!")
-                app.show_frame(PageTwo)
         except:
             tkMessageBox.showinfo("Invalid inputs", "TagSize not type int")
+        if ABRedLionTags().convert(size, PLCName, filename, TagName) == False:
+                tkMessageBox.showinfo("Invalid inputs", "Did not find any tags with that name\n Note: Redlion module name is case-sensitive!")
+        else:  
+            if filename.__contains__(".CSV") or filename.__contains__(".csv"): 
+                tkMessageBox.showinfo("Validated!", "Success!")
+                app.show_frame(PageTwo)
+                global guideWindow
+                guideWindow.closeWindow()
+            else:
+                tkMessageBox.showinfo("Invalid inputs", "File type not supported")
             
 class PageTwo(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Blahdeeeblaaaahhhh").pack(pady=10,padx=10)
-        button2 = tk.Button(self, text="Next>",command=lambda: controller.show_frame(guidePageTwo)).pack(side="right")
+        self.img = PhotoImage(file="AB2CrimsonStep1.gif")
+        labelStep3 = tk.Label(self, text="Now import the tag mapping by clicking the following:").pack(pady=10,padx=10)
+        imageStep3 = tk.Label(self, image=self.img).pack()
+        labelStep4 = tk.Label(self, text="Click 'Next' when ready").pack()
+        button1 = tk.Button(self, text="<Back", command=lambda: controller.show_frame(PageOne)).pack(side="left")
+        button2 = tk.Button(self, text="Next>", command=lambda: controller.show_frame(PageThree)).pack(side="right")
+
+class PageThree(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.img = PhotoImage(file="AB2CrimsonStep2.gif")
+        labelStep3 = tk.Label(self, text="Now import the tag mapping by clicking the following:").pack(pady=10,padx=10)
+        imageStep3 = tk.Label(self, image=self.img).pack()
+        labelStep4 = tk.Label(self, text="Click 'Next' when ready").pack()
+        button1 = tk.Button(self, text="<Back", command=lambda: controller.show_frame(PageOne)).pack(side="left")
+        button2 = tk.Button(self, text="Next>", command=lambda: controller.show_frame(PageFour)).pack(side="right")
+        
+class PageFour(tk.Frame):
+
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.img = PhotoImage(file="AB2CrimsonStep3.gif")
+        labelStep3 = tk.Label(self, text="Congratulations! You should now have a full tag database for use in RedLion,\n without the hassle of mapping individual tags!").pack(pady=10,padx=10)
+        imageStep3 = tk.Label(self, image=self.img).pack()
+        labelStep4 = tk.Label(self, text="Click 'Next' when ready").pack()
+        button1 = tk.Button(self, text="<Back", command=lambda: controller.show_frame(PageOne)).pack(side="left")
+        button2 = tk.Button(self, text="Close", command=lambda: controller.closeWindow()).pack(side="right")
         
 class guidePageOne(tk.Frame):
 
@@ -230,7 +271,8 @@ class guidePageSix(tk.Frame):
         labelStep5 = tk.Label(self, text="Now we need to map the tags to tags within Crimson.\n Quick Mapper will do this for you.\n Export the tags as a .CSV file from Studio 5000.").pack(pady=10,padx=10)
         imageStep5 = tk.Label(self, image=self.img).pack()
         labelStep6 = tk.Label(self, text="Then go back to the first window to continue").pack()
-        button1 = tk.Button(self, text="<Back", command=lambda: controller.show_frame(guidePageFive)).pack(side="left")         
+        button1 = tk.Button(self, text="<Back", command=lambda: controller.show_frame(guidePageFive)).pack(side="left")       
 
+global app
 app = GUI()
 app.mainloop()
